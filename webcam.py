@@ -1,11 +1,8 @@
 import cv2
 import vlc
 import random
-from time import sleep
+from time import time
 from threading import Thread
-from Queue import Queue
-
-queue = Queue()
 
 instruments = [
     'bass',
@@ -21,18 +18,18 @@ def play_sound(instrument, pitch):
     path = 'sounds/%s_%s.mp3' % (instrument, pitch)
     vlc.MediaPlayer(path).play()
 
-def analyze_frames():
+def play_music():
+    cur_time = time()
     while True:
-        frame = queue.get()
-        height = len(frame)
-        width = len(frame[0])
+        next_time = time()
+        delta = next_time - cur_time
 
-        # TODO: process the frame
+        # TODO: play musak
 
-        queue.task_done()
+        cur_time = next_time
 
 def main():
-    t = Thread(target=analyze_frames)
+    t = Thread(target=play_music)
     t.daemon = True
     t.start()
 
@@ -40,11 +37,11 @@ def main():
 
     while True:
         ret, frame = camera.read()
+        height = len(frame)
+        width = len(frame[0])
 
         # Uncomment the line below to see the feed
         # cv2.imshow('video', frame)
-
-        queue.put(frame)
 
     del(camera)
     cv2.destroyAllWindows()
