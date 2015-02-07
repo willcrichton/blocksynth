@@ -4,7 +4,11 @@ import random
 from time import time
 from threading import Thread
 
-instruments = [
+TIME_BETWEEN_ROWS = 0.25
+NUM_ROWS = 100
+NUM_SAMPLES = 16
+
+INSTRUMENTS = [
     'bass',
     'bell',
     'corny',
@@ -14,21 +18,33 @@ instruments = [
     'woody'
 ]
 
+rows = []
+
 def play_sound(instrument, pitch):
     path = 'sounds/%s_%s.mp3' % (instrument, pitch)
     vlc.MediaPlayer(path).play()
 
 def play_music():
-    cur_time = time()
+    last_time = time()
+    cur_row_index = 0
+
     while True:
-        next_time = time()
-        delta = next_time - cur_time
+        cur_time = time()
+        delta = cur_time - last_time
 
-        # TODO: play musak
+        if delta < TIME_BETWEEN_ROWS: continue
+        cur_row = rows[cur_row_index]
 
-        cur_time = next_time
+        for (instrument, pitch) in cur_row:
+            play_sound(instrument, pitch)
+
+        cur_row_index = (cur_row_index + 1) % NUM_ROWS
+        last_time = cur_time
 
 def main():
+    for i in range(0, NUM_ROWS):
+        rows.append([])
+
     t = Thread(target=play_music)
     t.daemon = True
     t.start()
